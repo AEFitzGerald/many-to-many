@@ -27,7 +27,7 @@ public class HomeController {
 	@Autowired
 	private AppService appService;
 	
-	//	Autowired does this: it tells the controller about the services and constructs the class with them
+	//	Autowired does what below does: it tells the controller about the services and constructs the class with them
 	//	private final AppService appService;
 	
 	//  construct the controller class with the services
@@ -44,7 +44,7 @@ public class HomeController {
 	
 	//---------------------------------------- Create ONE category home page
 	@GetMapping("/")
-	public String home(@ModelAttribute("category") Category category) {
+	public String categoryForm(@ModelAttribute("category") Category category) {
 		return "create-category.jsp"; 
 	}
 	
@@ -64,11 +64,12 @@ public class HomeController {
 	@GetMapping("/category/{id}")
 	public String showCategory(@PathVariable("id") Long id, Model model) {
 		
-		Category category = this.appService.getOneCategory(id);
-		model.addAttribute("category", category);
+		Category c = this.appService.getOneCategory(id);
+		model.addAttribute("category", c);
 		
-		List<Product> allProducts = this.appService.getAllProducts();
-		model.addAttribute("allProducts", allProducts);
+		//what are the products not associated with this category
+		List<Product> toBeProducts = this.appService.findByCategoriesNotContains(c);
+		model.addAttribute("toBeProducts", toBeProducts);
 		
 		
 		return "show-category.jsp";
@@ -81,24 +82,15 @@ public class HomeController {
 		System.out.println("Category ID is this -->" + categoryId);
 		System.out.println("Product ID is this -->" + productId);
 		
-		//retrieve a category object with the category id
-		Category category = this.appService.getOneCategory(categoryId);
+		Category c = this.appService.getOneCategory(categoryId);
+		Product p = this.appService.getOneProduct(productId);
 		
-		//retrieve a product object with the product id
-		Product product = this.appService.getOneProduct(productId);
+		List<Product> currentProducts = c.getProducts();
+		currentProducts.add(p);
+		c.setProducts(currentProducts);
 		
-		//what are the products associated with this category
-		List<Product> currentProducts = category.getProducts();
-		System.out.println(currentProducts);
-		
-		//add selected product to this category
-		currentProducts.add(product);
-		
-		//set the product to this category's product list
-		category.setProducts(currentProducts);
-		
-		//communicate with appService and update the category 
-		this.appService.updateCategory(category);
+		//update the category 
+		this.appService.updateCategory(c);
 		
 		return "redirect:/category/"+ categoryId;
 		
@@ -107,10 +99,10 @@ public class HomeController {
 	
 	//---------------------------------------- Create ONE product page
 		@GetMapping("/product")
-		public String home(@ModelAttribute("product") Product product) {
+		public String productForm(@ModelAttribute("product") Product product) {
+			
 			return "create-product.jsp"; 
 		}
-		
 		
 		
 		@PostMapping("/product/create")
@@ -118,8 +110,8 @@ public class HomeController {
 			if(result.hasErrors()) {
 				return "create-product.jsp";
 			}
-			this.appService.createProduct(product);
 			
+			this.appService.createProduct(product);
 			
 			return "redirect:/product";	
 		}
@@ -129,11 +121,12 @@ public class HomeController {
 	@GetMapping("/product/{id}")
 	public String showProduct(@PathVariable("id") Long id, Model model) {
 		
-		Product product = this.appService.getOneProduct(id);
-		model.addAttribute("product", product);
+		Product p = this.appService.getOneProduct(id);
+		model.addAttribute("product", p);
 		
-		List<Category> allCategories = this.appService.getAllCategories();
-		model.addAttribute("allCategories", allCategories);
+		//what are the categories not associated with this product
+		List<Category> toBeCategories = this.appService.findByProductsNotContains(p);
+		model.addAttribute("toBeCategories", toBeCategories);
 		
 		
 		return "show-product.jsp";
@@ -146,30 +139,20 @@ public class HomeController {
 		System.out.println("Product ID is this -->" + productId);
 		System.out.println("Category ID is this -->" + categoryId);
 		
-		//retrieve a category object with the category id
-		Product product = this.appService.getOneProduct(productId);
+		Product p = this.appService.getOneProduct(productId);
+		Category c = this.appService.getOneCategory(categoryId);
 		
-		//retrieve a product object with the product id
-		Category category = this.appService.getOneCategory(categoryId);
 		
-		//what are the products associated with this category
-		List<Category> currentCategories = product.getCategories();
-		System.out.println(currentCategories);
+		List<Category> currentCategories = p.getCategories();
+		currentCategories.add(c);
+		p.setCategories(currentCategories);
 		
-		//add selected product to this category
-		currentCategories.add(category);
-		
-		//set the product to this category's product list
-		product.setCategories(currentCategories);
-		
-		//communicate with appService and update the category 
-		this.appService.updateProduct(product);
+		//update the product 
+		this.appService.updateProduct(p);
 		
 		return "redirect:/product/"+ productId;
 		
 	}
-
-//this.category.getProducts().add(p);	
-//	this.category.getProducts().add(thisProduct);
 	
 }
+

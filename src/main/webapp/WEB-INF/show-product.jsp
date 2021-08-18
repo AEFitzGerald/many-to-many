@@ -28,7 +28,7 @@
   				<h5 class="card-title text-dark"></h5>
   				<form action="/product/${product.id}/add" method="post">
   					<select name ="categoryId" id= "">
-  						<c:forEach items="${ allCategories }" var="category">
+  						<c:forEach items="${ toBeCategories }" var="category">
 						<option value ="${ category.id }">${ category.name }</option>
 						</c:forEach>
 					</select>

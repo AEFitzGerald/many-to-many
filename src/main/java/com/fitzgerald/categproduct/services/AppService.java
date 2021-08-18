@@ -58,19 +58,21 @@ public class AppService {
 	
 
    
-    //------------------- Retrieve LIST of ANY categories that ONE product does NOT contain
+    //------------------- Retrieve LIST of categories that ONE product does NOT contain
     
-//    List<Category> findByProductNotContains(Product products){
-//    	return categoryRepo.findAllByProduct(products);
-//    }
+	// Return the categories that are unassigned to this product to avoid repetition
+    public List<Category> findByProductsNotContains(Product p){
+    	return categoryRepo.findByProductsNotContaining(p);
+    }
     	
     
     //------------------- Retrieve LIST of ANY categories that ONE product does NOT contain
     
-//    List<Product> findByCategoryNotContains(Category categories){
-//    	return productRepo.findAllByCategory(categories);
-//    }
-//    
+    // Return the products that are unassigned to this category to avoid repetition
+    public List<Product> findByCategoriesNotContains(Category c){
+    	return productRepo.findByCategoriesNotContaining(c);
+    }
+    
     
     //------------------ Update product || Assign category to product
 	
